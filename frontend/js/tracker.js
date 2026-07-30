@@ -96,8 +96,7 @@ function startSharing() {
   if (!navigator.geolocation) { toast('Geolocation not supported on this device', 'err'); return; }
 
   $('btn-allow').style.display = 'none';
-  $('share-title').textContent = `Sharing Active!`;
-  document.querySelector('.share-desc').textContent = 'Your location is now being shared live.';
+  document.querySelector('.share-desc').style.display = 'none';
   
   sharing = true;
 
