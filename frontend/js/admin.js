@@ -83,6 +83,13 @@ function buildPopup(p) {
     ? `<span style="color:#00e676;font-size:10px;">● LIVE</span>`
     : `<span style="color:#546e7a;font-size:10px;">● OFFLINE</span>`;
 
+  const addr = p.address ? `<div style="margin-top:6px;font-size:11px;color:#cfd8dc;white-space:normal;line-height:1.3;">🏠 ${esc(p.address)}</div>` : '';
+  const addrBtn = p.lat != null
+    ? (p.address 
+      ? `<button onclick="copyAddress(\`${esc(p.address).replace(/`/g, '')}\`);event.stopPropagation();" style="background:#263238;color:#cfd8dc;border:none;padding:2px 6px;border-radius:4px;font-size:10px;cursor:pointer;margin-top:4px;">📋 Copy Address</button>` 
+      : `<button onclick="getAddress('${p.id}', ${p.lat}, ${p.lng});event.stopPropagation();" style="background:#263238;color:#4fc3f7;border:none;padding:2px 6px;border-radius:4px;font-size:10px;cursor:pointer;margin-top:4px;">🌍 Get Address</button>`)
+    : '';
+
   return `
     <div style="min-width:220px;font-family:Inter,sans-serif;">
       <div class="pu-name">${dot} &nbsp;${esc(p.label)}</div>
@@ -93,7 +100,11 @@ function buildPopup(p) {
         <div>🚀 ${spd} &nbsp;·&nbsp; 🧭 ${hdg}</div>
       </div>
       <div class="pu-meta">⏱ ${seen} &nbsp;·&nbsp; 📡 ${p.updateCount || 0} pts</div>
-      <div style="margin-top:8px;">${gmLink}</div>
+      ${addr}
+      <div style="margin-top:8px;display:flex;gap:6px;align-items:center;">
+        ${gmLink}
+        ${addrBtn}
+      </div>
     </div>`;
 }
 
@@ -236,7 +247,16 @@ function buildCard(p) {
       <div class="pc-meta-item">🚀 <strong>${spd}</strong></div>
       <div class="pc-meta-item">📡 <strong>${p.updateCount || 0} pts</strong></div>
     </div>
-    ${lat !== '—' ? `<div class="pc-coords">📍 ${lat}, ${lng}</div><button class="pc-locate-btn" data-id="${p.id}">🎯 Focus on Map</button>` : ''}
+    ${lat !== '—' ? `
+      <div class="pc-coords">📍 ${lat}, ${lng}</div>
+      ${p.address ? `<div style="font-size:11px;color:#90a4ae;margin:6px 0;line-height:1.3;white-space:normal;">🏠 ${esc(p.address)}</div>` : ''}
+      <div style="display:flex;gap:6px;margin-top:6px;">
+        <button class="pc-locate-btn" data-id="${p.id}">🎯 Focus Map</button>
+        ${p.address 
+          ? `<button class="pc-locate-btn" style="background:#263238;color:#cfd8dc" onclick="copyAddress(\`${esc(p.address).replace(/`/g, '')}\`);event.stopPropagation();">📋 Copy Address</button>` 
+          : `<button class="pc-locate-btn" style="background:#263238;color:#4fc3f7" onclick="getAddress('${p.id}', ${p.lat}, ${p.lng});event.stopPropagation();">🌍 Get Address</button>`}
+      </div>
+    ` : ''}
   `;
   card.addEventListener('click', () => selectPerson(p.id));
   card.querySelector('.pc-locate-btn')?.addEventListener('click', (e) => { e.stopPropagation(); flyTo(p.id); });
@@ -393,6 +413,28 @@ function toast(msg, type = 'inf') {
     setTimeout(() => el.remove(), 320);
   }, 3500);
 }
+
+// ── Geocoding ──────────────────────────────────────────────────
+window.getAddress = async function(id, lat, lng) {
+  const p = S.people.get(id);
+  if (!p) return;
+  p.address = 'Fetching address...';
+  patchCard(id); putMarker(p);
+  
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+    const data = await res.json();
+    p.address = data.display_name || 'Address not found';
+  } catch(e) {
+    p.address = 'Error fetching address';
+  }
+  patchCard(id); putMarker(p);
+};
+
+window.copyAddress = function(text) {
+  navigator.clipboard.writeText(text);
+  toast('Address copied to clipboard!', 'ok');
+};
 
 // ── Utils ──────────────────────────────────────────────────────
 function relTime(iso) {
