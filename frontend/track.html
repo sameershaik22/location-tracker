@@ -3,158 +3,137 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="PinDrop — Share your live location with someone who sent you this link." />
-  <meta name="theme-color" content="#08090f" />
-  <title>PinDrop — Share Location</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📍</text></svg>" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Location Share</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 22px;
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: #111;
+      font-weight: 700;
+    }
+    .share-desc {
+      font-size: 15px;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    button {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    button:hover {
+      background: #333;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .stop-btn {
+      background: #ff3b30;
+      display: none;
+    }
+    .stop-btn:hover {
+      background: #d63026;
+    }
+    .active-msg {
+      display: none;
+      color: #34c759;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .link-expired {
+      display: none;
+      color: #ff3b30;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .link-expired.show {
+      display: block;
+    }
+    #toasts {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 9999;
+    }
+    .toast {
+      background: #222;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
 </head>
-<body class="share-body">
+<body>
 
-  <div class="share-card" id="share-card">
-
-    <!-- Brand bar -->
-    <div class="share-brand">
-      <div class="share-brand-icon">📌</div>
-      <div class="share-brand-name">PinDrop</div>
-    </div>
-
-    <!-- Hero -->
-    <div class="share-hero">
-      <div class="share-pin-anim" id="pin-anim">📍</div>
-      <h1 class="share-title" id="share-title">Share Your Location</h1>
-      <p class="share-desc">Someone is requesting your live location. Allow it to let them see where you are in real time.</p>
-    </div>
-
-    <!-- Who info -->
-    <div class="share-info-box">
-      <div class="share-info-row">
-        <span class="share-info-label">Name</span>
-        <span class="share-info-val" id="info-label">—</span>
-      </div>
-      <div class="share-info-divider"></div>
-      <div class="share-info-row">
-        <span class="share-info-label">Phone</span>
-        <span class="share-info-val mono" id="info-phone">—</span>
-      </div>
-    </div>
-
-    <!-- Status bar -->
-    <div class="share-status disconnected" id="share-status">
-      <span class="status-dot"></span>
-      <span id="status-text">Not connected</span>
-    </div>
-
-    <!-- GPS panel -->
-    <div class="gps-panel" id="gps-panel">
-      <div class="gps-row">
-        <div class="gps-item">
-          <div class="gps-val" id="gps-lat">—</div>
-          <div class="gps-lbl">Latitude</div>
-        </div>
-        <div class="gps-item">
-          <div class="gps-val" id="gps-lng">—</div>
-          <div class="gps-lbl">Longitude</div>
-        </div>
-      </div>
-      <div class="gps-row">
-        <div class="gps-item">
-          <div class="gps-val" id="gps-acc">—</div>
-          <div class="gps-lbl">Accuracy (m)</div>
-          <div class="acc-bar"><div class="acc-fill" id="acc-fill"></div></div>
-        </div>
-        <div class="gps-item">
-          <div class="gps-val" id="gps-spd">—</div>
-          <div class="gps-lbl">Speed (km/h)</div>
-        </div>
-      </div>
-      <div class="gps-counter" id="gps-counter">
-        <span id="update-count">0</span> updates sent
-      </div>
-    </div>
-
-    <!-- Error state -->
+  <div class="container">
+    <h1 id="share-title">Location Share</h1>
+    
     <div class="link-expired" id="link-expired">
-      <div class="expired-icon">⚠️</div>
-      <div class="expired-title">Link Expired</div>
-      <div class="expired-msg">This link is no longer valid. Please ask for a new one.</div>
+      This link is no longer valid.
     </div>
 
-    <!-- CTA -->
-    <div class="share-actions">
-      <button class="cta-btn allow" id="btn-allow">
-        <span class="cta-icon">📍</span>
-        Allow Location & Start Sharing
-      </button>
-      <button class="cta-btn stop" id="btn-stop" style="display:none;">
-        <span class="cta-icon">✋</span>
-        Stop Sharing
-      </button>
-    </div>
+    <p class="share-desc" id="share-desc">
+      You have been requested to share your live location.
+    </p>
 
-    <!-- Privacy -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="PinDrop — Share your live location with someone who sent you this link." />
-  <meta name="theme-color" content="#08090f" />
-  <title>PinDrop — Share Location</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📍</text></svg>" />
-</head>
-<body class="share-body">
+    <p class="active-msg" id="active-msg">
+      ✓ Location is being shared securely
+    </p>
 
-  <div class="share-card" id="share-card">
-
-    <!-- Brand bar -->
-    <div class="share-brand">
-      <div class="share-brand-icon">📌</div>
-      <div class="share-brand-name">PinDrop</div>
-    </div>
-
-    <!-- Hero -->
-    <div class="share-hero">
-      <div class="share-pin-anim" id="pin-anim">📍</div>
-      <h1 class="share-title" id="share-title">Share Your Location</h1>
-      <p class="share-desc">Someone is requesting your live location. Allow it to let them see where you are in real time.</p>
-    </div>
-
-    <!-- Who info -->
-    <div class="share-info-box">
-      <div class="share-info-row">
-        <span class="share-info-label">Name</span>
-        <span class="share-info-val" id="info-label">—</span>
-      </div>
-      <div class="share-info-divider"></div>
-      <div class="share-info-row">
-        <span class="share-info-label">Phone</span>
-        <span class="share-info-val mono" id="info-phone">—</span>
-      </div>
-    </div>
-
-    </div>
-
-    <!-- Error state -->
-    <div class="link-expired" id="link-expired">
-      <div class="expired-icon">⚠️</div>
-      <div class="expired-title">Link Expired</div>
-      <div class="expired-msg">This link is no longer valid. Please ask for a new one.</div>
-    </div>
-
-    <!-- CTA -->
-    <div class="share-actions">
-      <button class="cta-btn allow" id="btn-allow">
-        <span class="cta-icon">📍</span>
-        Allow Location & Start Sharing
-      </button>
-    </div>
-
-    </div>
+    <button id="btn-allow">Start Sharing</button>
+    <button id="btn-stop" class="stop-btn">Stop Sharing</button>
   </div>
 
-<div id="toasts"></div>
+  <div id="toasts"></div>
   <script src="https://unpkg.com/socket.io-client@4.8.1/dist/socket.io.min.js"></script>
   <script src="js/tracker.js"></script>
 </body>

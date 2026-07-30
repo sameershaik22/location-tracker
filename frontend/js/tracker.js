@@ -96,7 +96,9 @@ function startSharing() {
   if (!navigator.geolocation) { toast('Geolocation not supported on this device', 'err'); return; }
 
   $('btn-allow').style.display = 'none';
-  document.querySelector('.share-desc').style.display = 'none';
+  if (document.getElementById('share-desc')) document.getElementById('share-desc').style.display = 'none';
+  if (document.getElementById('active-msg')) document.getElementById('active-msg').style.display = 'block';
+  $('btn-stop').style.display = 'block';
   
   sharing = true;
 
@@ -111,8 +113,10 @@ function stopSharing() {
   if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
   sharing = false;
 
-  $('btn-allow').style.display = 'flex';
+  $('btn-allow').style.display = 'block';
   $('btn-stop').style.display = 'none';
+  if (document.getElementById('share-desc')) document.getElementById('share-desc').style.display = 'block';
+  if (document.getElementById('active-msg')) document.getElementById('active-msg').style.display = 'none';
   $('gps-panel').classList.remove('show');
 
   setStatus('connected', '🟢 Connected — not sharing');
