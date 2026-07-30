@@ -5,12 +5,12 @@
 
 // ── State ──────────────────────────────────────────────────────
 const S = {
-  people:  new Map(),   // id → tracker data
+  people: new Map(),   // id → tracker data
   markers: new Map(),   // id → L.marker
-  sel:     null,        // selected id
-  map:     null,
-  socket:  null,
-  filter:  'all',
+  sel: null,        // selected id
+  map: null,
+  socket: null,
+  filter: 'all',
   genLink: '',
 };
 
@@ -25,7 +25,7 @@ function initMap() {
   });
 
   // ── Tile Layers ─────────────────────────────────────────────
-  const subdomains = ['mt0','mt1','mt2','mt3'];
+  const subdomains = ['mt0', 'mt1', 'mt2', 'mt3'];
 
   const layers = {
     'Satellite': L.tileLayer(
@@ -69,17 +69,17 @@ function mkIcon(label, status) {
 }
 
 function buildPopup(p) {
-  const lat  = p.lat  != null ? p.lat.toFixed(7)           : 'N/A';
-  const lng  = p.lng  != null ? p.lng.toFixed(7)           : 'N/A';
-  const spd  = p.speed != null ? (p.speed * 3.6).toFixed(2) + ' km/h' : '—';
-  const acc  = p.accuracy != null ? '±' + p.accuracy.toFixed(1) + ' m' : '—';
-  const alt  = p.altitude != null ? p.altitude.toFixed(1) + ' m'       : '—';
-  const hdg  = p.heading  != null ? p.heading.toFixed(0) + '°'         : '—';
+  const lat = p.lat != null ? p.lat.toFixed(7) : 'N/A';
+  const lng = p.lng != null ? p.lng.toFixed(7) : 'N/A';
+  const spd = p.speed != null ? (p.speed * 3.6).toFixed(2) + ' km/h' : '—';
+  const acc = p.accuracy != null ? '±' + p.accuracy.toFixed(1) + ' m' : '—';
+  const alt = p.altitude != null ? p.altitude.toFixed(1) + ' m' : '—';
+  const hdg = p.heading != null ? p.heading.toFixed(0) + '°' : '—';
   const seen = p.lastSeen ? relTime(p.lastSeen) : '—';
   const gmLink = p.lat != null
     ? `<a href="https://www.google.com/maps?q=${p.lat},${p.lng}" target="_blank" rel="noopener" style="color:#4fc3f7;font-size:11px;">📍 Open in Google Maps</a>`
     : '';
-  const dot  = p.status === 'online'
+  const dot = p.status === 'online'
     ? `<span style="color:#00e676;font-size:10px;">● LIVE</span>`
     : `<span style="color:#546e7a;font-size:10px;">● OFFLINE</span>`;
 
@@ -99,9 +99,9 @@ function buildPopup(p) {
 
 function putMarker(p) {
   if (p.lat == null || p.lng == null) return;
-  const ll   = [p.lat, p.lng];
+  const ll = [p.lat, p.lng];
   const icon = mkIcon(p.label, p.status);
-  const pop  = buildPopup(p);
+  const pop = buildPopup(p);
 
   if (S.markers.has(p.id)) {
     const m = S.markers.get(p.id);
@@ -186,15 +186,15 @@ function upsert(data) {
 
 // ── People list ────────────────────────────────────────────────
 function renderList() {
-  const list  = document.getElementById('person-list');
+  const list = document.getElementById('person-list');
   const empty = document.getElementById('empty-state');
-  const q     = (document.getElementById('search-input').value || '').toLowerCase();
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
 
   list.querySelectorAll('.person-card').forEach((c) => c.remove());
 
   const filtered = Array.from(S.people.values())
     .filter((p) => {
-      if (S.filter === 'online'  && p.status !== 'online')  return false;
+      if (S.filter === 'online' && p.status !== 'online') return false;
       if (S.filter === 'offline' && p.status !== 'offline') return false;
       if (!q) return true;
       return (p.label || '').toLowerCase().includes(q) || (p.phone || '').includes(q) || (p.id || '').toLowerCase().includes(q);
@@ -206,12 +206,12 @@ function renderList() {
 }
 
 function buildCard(p) {
-  const live    = p.status === 'online';
+  const live = p.status === 'online';
   const initial = (p.label || '?')[0].toUpperCase();
-  const lat = p.lat  != null ? p.lat.toFixed(5) : '—';
-  const lng = p.lng  != null ? p.lng.toFixed(5) : '—';
+  const lat = p.lat != null ? p.lat.toFixed(5) : '—';
+  const lng = p.lng != null ? p.lng.toFixed(5) : '—';
   const acc = p.accuracy != null ? p.accuracy.toFixed(0) + 'm' : '—';
-  const spd = p.speed    != null ? (p.speed * 3.6).toFixed(1) + ' km/h' : '—';
+  const spd = p.speed != null ? (p.speed * 3.6).toFixed(1) + ' km/h' : '—';
   const seen = p.lastSeen ? relTime(p.lastSeen) : '—';
 
   const card = document.createElement('div');
@@ -276,10 +276,10 @@ function fitAll() {
 
 // ── Stats ──────────────────────────────────────────────────────
 function updateStats() {
-  const all  = Array.from(S.people.values());
+  const all = Array.from(S.people.values());
   const live = all.filter((p) => p.status === 'online').length;
-  document.getElementById('count-live').textContent    = live;
-  document.getElementById('count-total').textContent   = all.length;
+  document.getElementById('count-live').textContent = live;
+  document.getElementById('count-total').textContent = all.length;
   document.getElementById('count-offline').textContent = all.length - live;
 }
 
@@ -318,7 +318,7 @@ async function generateLink() {
   btn.textContent = '⏳ Generating…';
 
   try {
-    const res  = await fetch('https://location-tracker-3gvw.onrender.com/api/generate?' + new URLSearchParams({ phone, label: label || phone }));
+    const res = await fetch('https://location-tracker-3gvw.onrender.com/api/generate?' + new URLSearchParams({ phone, label: label || phone }));
     const data = await res.json();
 
     if (!data.success) throw new Error(data.message || 'Failed');
@@ -326,7 +326,7 @@ async function generateLink() {
     S.genLink = data.link;
     const lt = document.getElementById('link-text');
     lt.textContent = data.link;
-    lt.href        = data.link;
+    lt.href = data.link;
     document.getElementById('open-link').href = data.link;
 
     if (data.expiresAt) {
@@ -334,11 +334,11 @@ async function generateLink() {
         'Expires ' + new Date(data.expiresAt).toLocaleString();
     }
 
-    const name    = label || phone;
+    const name = label || phone;
     const msgBody = `Hi ${name},\n\nSomeone is requesting to track your live location.\n\nOpen this link on your phone and tap "Allow Location & Start Sharing":\n\n${data.link}\n\n– Sent via PinDrop`;
 
-    document.getElementById('share-wa').href    = `https://wa.me/?text=${encodeURIComponent(msgBody)}`;
-    document.getElementById('share-sms').href   = `sms:?body=${encodeURIComponent(msgBody)}`;
+    document.getElementById('share-wa').href = `https://wa.me/?text=${encodeURIComponent(msgBody)}`;
+    document.getElementById('share-sms').href = `sms:?body=${encodeURIComponent(msgBody)}`;
     document.getElementById('share-email').href = `mailto:?subject=${encodeURIComponent('Live Location Request — PinDrop')}&body=${encodeURIComponent(msgBody)}`;
 
     document.getElementById('link-result').classList.add('show');
@@ -374,10 +374,10 @@ function showUrlBanner(url) {
 
 // ── Server status ──────────────────────────────────────────────
 function setServerStatus(online) {
-  const el   = document.getElementById('server-dot-wrap');
+  const el = document.getElementById('server-dot-wrap');
   const text = document.getElementById('server-status-text');
   if (online) { el.classList.remove('offline'); text.textContent = 'Live'; }
-  else        { el.classList.add('offline');    text.textContent = 'Offline'; }
+  else { el.classList.add('offline'); text.textContent = 'Offline'; }
 }
 
 // ── Toasts ─────────────────────────────────────────────────────
@@ -397,8 +397,8 @@ function toast(msg, type = 'inf') {
 // ── Utils ──────────────────────────────────────────────────────
 function relTime(iso) {
   const d = Math.floor((Date.now() - new Date(iso)) / 1000);
-  if (d < 5)    return 'Just now';
-  if (d < 60)   return `${d}s ago`;
+  if (d < 5) return 'Just now';
+  if (d < 60) return `${d}s ago`;
   if (d < 3600) return `${Math.floor(d / 60)}m ago`;
   return `${Math.floor(d / 3600)}h ago`;
 }
@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fetch public URL immediately (tunnel may already be running)
   fetch('https://location-tracker-3gvw.onrender.com/api/public-url').then(r => r.json()).then(d => {
     if (d.isPublic && d.url) showUrlBanner(d.url);
-  }).catch(() => {});
+  }).catch(() => { });
 
   document.getElementById('btn-new-track').addEventListener('click', openModal);
   document.getElementById('btn-fit-all').addEventListener('click', fitAll);

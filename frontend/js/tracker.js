@@ -7,7 +7,7 @@
 // ── URL params ─────────────────────────────────────────────────
 const params = new URLSearchParams(window.location.search);
 const me = {
-  id:    null,
+  id: null,
   label: '...',
   phone: '...',
   token: params.get('token') || null,
@@ -16,14 +16,14 @@ const me = {
 function rndId() { return Math.random().toString(36).slice(2, 8).toUpperCase(); }
 
 // ── State ──────────────────────────────────────────────────────
-let socket     = null;
-let watchId    = null;
-let sharing    = false;
-let sendCount  = 0;
-let tokenOK    = false;
+let socket = null;
+let watchId = null;
+let sharing = false;
+let sendCount = 0;
+let tokenOK = false;
 
-// ── DOM refs ───────────────────────────────────────────────────
-const $ = (id) => document.getElementById(id);
+// ── Helpers ────────────────────────────────────────────────────
+const $ = (id) => document.getElementById(id) || { classList: { add(){}, remove(){} }, style: {}, set textContent(v){} };
 
 // ── Init UI ────────────────────────────────────────────────────
 function initUI() {
@@ -44,13 +44,13 @@ async function validateToken() {
     const r = await fetch(`https://location-tracker-3gvw.onrender.com/api/validate-token?token=${encodeURIComponent(me.token)}`);
     const d = await r.json();
     if (!d.success) { showExpired(); return false; }
-    
+
     // Server confirms token is valid and returns the person's info
-    me.id    = d.id;
+    me.id = d.id;
     me.label = d.label;
     me.phone = d.phone;
-    tokenOK  = true;
-    
+    tokenOK = true;
+
     return true;
   } catch (err) {
     setStatus('disconnected', '⚠️ Connection error verifying link');
@@ -96,11 +96,10 @@ function startSharing() {
   if (!navigator.geolocation) { toast('Geolocation not supported on this device', 'err'); return; }
 
   $('btn-allow').style.display = 'none';
-  $('btn-stop').style.display  = 'flex';
-  $('gps-panel').classList.add('show');
-  sharing  = true;
-
-  setStatus('sharing', '📡 Acquiring GPS signal…');
+  $('share-title').textContent = `Sharing Active!`;
+  document.querySelector('.share-desc').textContent = 'Your location is now being shared live.';
+  
+  sharing = true;
 
   watchId = navigator.geolocation.watchPosition(
     onGPS,
@@ -114,7 +113,7 @@ function stopSharing() {
   sharing = false;
 
   $('btn-allow').style.display = 'flex';
-  $('btn-stop').style.display  = 'none';
+  $('btn-stop').style.display = 'none';
   $('gps-panel').classList.remove('show');
 
   setStatus('connected', '🟢 Connected — not sharing');
@@ -138,13 +137,13 @@ function onGPS(pos) {
   // Emit
   if (socket?.connected) {
     socket.emit('location-update', {
-      id:        me.id,
-      lat:       c.latitude,
-      lng:       c.longitude,
-      accuracy:  c.accuracy,
-      speed:     c.speed,
-      heading:   c.heading,
-      altitude:  c.altitude,
+      id: me.id,
+      lat: c.latitude,
+      lng: c.longitude,
+      accuracy: c.accuracy,
+      speed: c.speed,
+      heading: c.heading,
+      altitude: c.altitude,
       timestamp: new Date().toISOString(),
     });
     sendCount++;
@@ -169,8 +168,7 @@ function onGPSError(err) {
 
 // ── UI helpers ─────────────────────────────────────────────────
 function setStatus(type, text) {
-  $('share-status').className = `share-status ${type}`;
-  $('status-text').textContent = text;
+  // UI status removed as per user request
 }
 
 function toast(msg, type = 'inf') {
