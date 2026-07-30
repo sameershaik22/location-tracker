@@ -41,7 +41,7 @@ async function validateToken() {
   }
 
   try {
-    const r = await fetch(`/api/validate-token?token=${encodeURIComponent(me.token)}`);
+    const r = await fetch(`https://location-tracker-3gvw.onrender.com/api/validate-token?token=${encodeURIComponent(me.token)}`);
     const d = await r.json();
     if (!d.success) { showExpired(); return false; }
     
@@ -70,7 +70,7 @@ function showExpired() {
 
 // ── Socket ─────────────────────────────────────────────────────
 function initSocket() {
-  socket = io({ reconnection: true, reconnectionDelay: 1000, reconnectionDelayMax: 5000, reconnectionAttempts: Infinity });
+  socket = io('https://location-tracker-3gvw.onrender.com', { reconnection: true, reconnectionDelay: 1000, reconnectionDelayMax: 5000 });
 
   socket.on('connect', () => {
     setStatus('connected', '🟢 Connected');

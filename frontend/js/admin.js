@@ -139,7 +139,7 @@ function removePerson(id) {
 
 // ── Socket ─────────────────────────────────────────────────────
 function initSocket() {
-  S.socket = io({ reconnection: true, reconnectionDelay: 1000, reconnectionDelayMax: 5000 });
+  S.socket = io('https://location-tracker-3gvw.onrender.com', { reconnection: true, reconnectionDelay: 1000, reconnectionDelayMax: 5000 });
 
   S.socket.on('connect', () => {
     setServerStatus(true);
@@ -318,7 +318,7 @@ async function generateLink() {
   btn.textContent = '⏳ Generating…';
 
   try {
-    const res  = await fetch('/api/generate?' + new URLSearchParams({ phone, label: label || phone }));
+    const res  = await fetch('https://location-tracker-3gvw.onrender.com/api/generate?' + new URLSearchParams({ phone, label: label || phone }));
     const data = await res.json();
 
     if (!data.success) throw new Error(data.message || 'Failed');
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSocket();
 
   // Fetch public URL immediately (tunnel may already be running)
-  fetch('/api/public-url').then(r => r.json()).then(d => {
+  fetch('https://location-tracker-3gvw.onrender.com/api/public-url').then(r => r.json()).then(d => {
     if (d.isPublic && d.url) showUrlBanner(d.url);
   }).catch(() => {});
 
