@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="PinDrop — Share your live location with someone who sent you this link." />
+  <meta name="theme-color" content="#08090f" />
+  <title>PinDrop — Share Location</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📍</text></svg>" />
+</head>
+<body class="share-body">
+
+  <div class="share-card" id="share-card">
+
+    <!-- Brand bar -->
+    <div class="share-brand">
+      <div class="share-brand-icon">📌</div>
+      <div class="share-brand-name">PinDrop</div>
+    </div>
+
+    <!-- Hero -->
+    <div class="share-hero">
+      <div class="share-pin-anim" id="pin-anim">📍</div>
+      <h1 class="share-title" id="share-title">Share Your Location</h1>
+      <p class="share-desc">Someone is requesting your live location. Allow it to let them see where you are in real time.</p>
+    </div>
+
+    <!-- Who info -->
+    <div class="share-info-box">
+      <div class="share-info-row">
+        <span class="share-info-label">Name</span>
+        <span class="share-info-val" id="info-label">—</span>
+      </div>
+      <div class="share-info-divider"></div>
+      <div class="share-info-row">
+        <span class="share-info-label">Phone</span>
+        <span class="share-info-val mono" id="info-phone">—</span>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="share-status disconnected" id="share-status">
+      <span class="status-dot"></span>
+      <span id="status-text">Not connected</span>
+    </div>
+
+    <!-- GPS panel -->
+    <div class="gps-panel" id="gps-panel">
+      <div class="gps-row">
+        <div class="gps-item">
+          <div class="gps-val" id="gps-lat">—</div>
+          <div class="gps-lbl">Latitude</div>
+        </div>
+        <div class="gps-item">
+          <div class="gps-val" id="gps-lng">—</div>
+          <div class="gps-lbl">Longitude</div>
+        </div>
+      </div>
+      <div class="gps-row">
+        <div class="gps-item">
+          <div class="gps-val" id="gps-acc">—</div>
+          <div class="gps-lbl">Accuracy (m)</div>
+          <div class="acc-bar"><div class="acc-fill" id="acc-fill"></div></div>
+        </div>
+        <div class="gps-item">
+          <div class="gps-val" id="gps-spd">—</div>
+          <div class="gps-lbl">Speed (km/h)</div>
+        </div>
+      </div>
+      <div class="gps-counter" id="gps-counter">
+        <span id="update-count">0</span> updates sent
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div class="link-expired" id="link-expired">
+      <div class="expired-icon">⚠️</div>
+      <div class="expired-title">Link Expired</div>
+      <div class="expired-msg">This link is no longer valid. Please ask for a new one.</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="share-actions">
+      <button class="cta-btn allow" id="btn-allow">
+        <span class="cta-icon">📍</span>
+        Allow Location & Start Sharing
+      </button>
+      <button class="cta-btn stop" id="btn-stop" style="display:none;">
+        <span class="cta-icon">✋</span>
+        Stop Sharing
+      </button>
+    </div>
+
+    <!-- Privacy -->
+    <div class="privacy-strip">
+      🔒 Location shared only while this page is open. Nothing is stored after you leave.
+    </div>
+
+  </div>
+
+<div id="toasts"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/tracker.js"></script>
+</body>
+</html>
